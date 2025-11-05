@@ -9,11 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="efpt.config.json" />
     <Content Remove="Properties\launchSettings.template.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="efpt.config.json.user" />
   </ItemGroup>
 
   <ItemGroup>
