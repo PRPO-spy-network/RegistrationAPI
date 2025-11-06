@@ -39,7 +39,7 @@ namespace Registrations.Controllers
 				dbContext.SaveChanges();
 			}
 
-			return Created();
+			return Created("", null);
 		}
 
 		[HttpGet("{id}")]
