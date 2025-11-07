@@ -18,6 +18,30 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var logger = app.Logger;
+
+
+using (var scope = app.Services.CreateScope())
+{
+	var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PostgresContext>>();
+	using var dbContext = dbContextFactory.CreateDbContext();
+	try
+	{
+		if (await dbContext.Database.CanConnectAsync())
+		{
+			logger.LogInformation("Connected to timescale.");
+		}
+		else
+		{
+			logger.LogWarning("Can't connect to timescale. ");
+		}
+	}
+	catch (Exception ex)
+	{
+		logger.LogError($"Error connecting to timescale: {ex.Message}");
+	}
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
