@@ -1,6 +1,7 @@
 using Registrations.Models;
 using Microsoft.EntityFrameworkCore;
 
+
 var config = new ConfigurationBuilder()
 			.AddEnvironmentVariables()
 			.Build();
@@ -17,8 +18,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 var logger = app.Logger;
+
+
+if (app.Environment.IsDevelopment())
+{
+	logger.LogInformation("Running in dev mode");
+}
 
 
 using (var scope = app.Services.CreateScope())
@@ -48,10 +54,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+	app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 
