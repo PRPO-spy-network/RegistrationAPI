@@ -8,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Registrations.Controllers
 {
     [ApiController]
-	[Route("/register/[controller]")]
+	[Route("/register/")]
 	public class RegistrationController : ControllerBase
     {
         private readonly ILogger<RegistrationController> _logger;
