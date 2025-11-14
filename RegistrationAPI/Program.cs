@@ -24,8 +24,6 @@ var app = builder.Build();
 app.MapHealthChecks("/health");
 
 var logger = app.Logger;
-
-
 if (app.Environment.IsDevelopment())
 {
 	logger.LogInformation("Running in dev mode");
