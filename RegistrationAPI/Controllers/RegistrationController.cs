@@ -22,24 +22,28 @@ namespace Registrations.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] RegistrationData data)
         {
-			using (var dbContext = _dbContextFactory.CreateDbContext())
-			{
-				int? region = (from r in dbContext.LookupRegistrations
-							 where r.Region == data.Region
-							 select (int?)r.Id).FirstOrDefault();
-
-				if (region == null)
+			try { 
+				using (var dbContext = _dbContextFactory.CreateDbContext())
 				{
-					return NotFound(new { message = "Region not found!" });
+					int? region = (from r in dbContext.LookupRegistrations
+								 where r.Region == data.Region
+								 select (int?)r.Id).FirstOrDefault();
+
+					if (region == null)
+					{
+						return NotFound(new { message = "Region not found!" });
+					}
+
+					var dbData = new Registration { CarId = data.Id, RegionId = region };
+
+					dbContext.Registrations.Add(dbData);
+					dbContext.SaveChanges();
 				}
 
-				var dbData = new Registration { CarId = data.Id, RegionId = region };
-
-				dbContext.Registrations.Add(dbData);
-				dbContext.SaveChanges();
+				return Created("", null);
+			}catch{
+				return StatusCode(500);
 			}
-
-			return Created("", null);
 		}
 
 		[HttpGet("{id}")]
@@ -52,7 +56,7 @@ namespace Registrations.Controllers
 									where r.RegionId == l.Id && r.CarId == id
 									select new {Id = r.CarId, Region = l.Region})
 					.FirstOrDefault();
-
+			
 				if (registration == null)
 				{
 					return NotFound(new { message = "Registration not found!" });
@@ -65,19 +69,27 @@ namespace Registrations.Controllers
 		[HttpGet]
 		public IActionResult Get()
 		{
-			using (var dbContext = _dbContextFactory.CreateDbContext())
+			try
 			{
-				var registration =  from r in dbContext.Registrations 
-									from l in dbContext.LookupRegistrations
-									where r.RegionId == l.Id
-									select new { Id = r.CarId, Region = l.Region };
-
-				if (registration == null)
+				using (var dbContext = _dbContextFactory.CreateDbContext())
 				{
-					return NotFound(new { message = "Registrations not found!" });
-				}
+					var registration = from r in dbContext.Registrations
+									  join l in dbContext.LookupRegistrations
+									  on r.RegionId equals l.Id
+									   select new { Id = r.CarId, Region = l.Region };
 
-				return Ok(registration.ToList());
+					var list = registration.ToList();
+					if (registration == list)
+					{
+						return NotFound(new { message = "Registrations not found!" });
+					}
+
+					return Ok(list);
+				}
+			}
+			catch
+			{
+				return StatusCode(500);
 			}
 		}
 
