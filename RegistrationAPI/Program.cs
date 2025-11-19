@@ -1,23 +1,23 @@
-using Registrations.Models;
 using Microsoft.EntityFrameworkCore;
-
-
-var config = new ConfigurationBuilder()
-			.AddEnvironmentVariables()
-			.Build();
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using RegistrationAPI.Classes;
+using Registrations.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-string connectionString = config["TIMESCALE_CONN_STRING"] ?? throw new InvalidDataException("TIMESCALE_CONN_STRING ne obstaja");
+string connectionString = builder.Configuration["TIMESCALE_CONN_STRING"] ?? throw new InvalidDataException("TIMESCALE_CONN_STRING ne obstaja");
 builder.Services.AddDbContextFactory<PostgresContext>(options => options.UseNpgsql(connectionString));
 
 
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+	.AddNpgSql(connectionString, name: "timescale");
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<DiscordService>();
 
 var app = builder.Build();
 

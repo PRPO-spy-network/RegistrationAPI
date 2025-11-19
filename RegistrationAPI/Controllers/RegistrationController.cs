@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RegistrationAPI.Classes;
 using Registrations.Classes;
 using Registrations.Models;
 using System.Xml.Linq;
@@ -13,10 +14,14 @@ namespace Registrations.Controllers
     {
         private readonly ILogger<RegistrationController> _logger;
 		private readonly IDbContextFactory<PostgresContext> _dbContextFactory;
-		public RegistrationController(ILogger<RegistrationController> logger, IDbContextFactory<PostgresContext> dbContextFactory)
+		private readonly DiscordService _discord;
+		private readonly IConfiguration _config;
+		public RegistrationController(ILogger<RegistrationController> logger, IDbContextFactory<PostgresContext> dbContextFactory, DiscordService discord, IConfiguration config)
         {
             _logger = logger;
             _dbContextFactory = dbContextFactory;
+			_discord = discord;
+			_config = config;
 		}
 
         [HttpPost]
@@ -38,6 +43,7 @@ namespace Registrations.Controllers
 
 					dbContext.Registrations.Add(dbData);
 					dbContext.SaveChanges();
+					_discord.SendDiscordMessageAsync(_config["WEB_HOOK_URL"]!, $"Registered car '{data.Id}' in region '{region}'");
 				}
 
 				return Created("", null);
