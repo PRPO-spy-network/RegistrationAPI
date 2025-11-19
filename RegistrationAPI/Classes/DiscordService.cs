@@ -2,7 +2,13 @@
 using System.Text.Json;
 
 namespace RegistrationAPI.Classes;
-public class DiscordService
+
+public interface IDiscordService
+{
+	Task SendDiscordMessageAsync(string url, string message);
+}
+
+public class DiscordService : IDiscordService
 {
 	private readonly HttpClient _httpClient;
 

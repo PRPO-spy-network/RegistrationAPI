@@ -14,9 +14,9 @@ namespace Registrations.Controllers
     {
         private readonly ILogger<RegistrationController> _logger;
 		private readonly IDbContextFactory<PostgresContext> _dbContextFactory;
-		private readonly DiscordService _discord;
+		private readonly IDiscordService _discord;
 		private readonly IConfiguration _config;
-		public RegistrationController(ILogger<RegistrationController> logger, IDbContextFactory<PostgresContext> dbContextFactory, DiscordService discord, IConfiguration config)
+		public RegistrationController(ILogger<RegistrationController> logger, IDbContextFactory<PostgresContext> dbContextFactory, IDiscordService discord, IConfiguration config)
         {
             _logger = logger;
             _dbContextFactory = dbContextFactory;

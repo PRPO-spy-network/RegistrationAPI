@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.EntityFrameworkCore;
+using RegistrationAPI.Classes;
 using Registrations.Classes;
 using Registrations.Controllers;
 using Registrations.Models;
@@ -13,13 +15,22 @@ namespace RegistrationAPI.tests
 	{
 		private readonly Mock<ILogger<RegistrationController>> _mockLogger;
 		private readonly Mock<IDbContextFactory<PostgresContext>> _mockDbContextFactory;
+		private readonly Mock<IDiscordService> _mockDiscordService;
+		private readonly Mock<IConfiguration> _mockConfiguration;
 		private readonly RegistrationController _controller;
 
 		public UnitTest1()
 		{
 			_mockLogger = new Mock<ILogger<RegistrationController>>();
 			_mockDbContextFactory = new Mock<IDbContextFactory<PostgresContext>>();
-			_controller = new RegistrationController(_mockLogger.Object, _mockDbContextFactory.Object);
+			var mockConfig = new Mock<IConfiguration>();
+			mockConfig.Setup(c => c["WEB_HOOK_URL"])
+					  .Returns("https://example.com/webhook");
+			var mockDiscord = new Mock<IDiscordService>();
+			mockDiscord
+				.Setup(d => d.SendDiscordMessageAsync(It.IsAny<string>(), It.IsAny<string>()))
+				.Returns(Task.CompletedTask);
+			_controller = new RegistrationController(_mockLogger.Object, _mockDbContextFactory.Object, mockDiscord.Object, mockConfig.Object);
 		}
 
 		[Fact]
