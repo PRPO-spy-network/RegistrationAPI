@@ -13,7 +13,6 @@ public partial class PostgresContext : DbContext
     {
     }
 
-    public virtual DbSet<CarGpsData> CarGpsData { get; set; }
 
     public virtual DbSet<LookupRegistration> LookupRegistrations { get; set; }
 
@@ -21,27 +20,6 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder
-            //.HasPostgresEnum("regiont", new[] { "OTHER", "EU" })
-            .HasPostgresExtension("timescaledb");
-
-        modelBuilder.Entity<CarGpsData>(entity =>
-        {
-            entity.HasKey(e => new { e.CarId, e.Time }).HasName("car_gps_data_pkey");
-
-            entity.ToTable("car_gps_data");
-
-            entity.HasIndex(e => e.Time, "car_gps_data_time_idx").IsDescending();
-
-            entity.Property(e => e.CarId)
-                .HasMaxLength(8)
-                .IsFixedLength()
-                .HasColumnName("car_id");
-            entity.Property(e => e.Time).HasColumnName("time");
-            entity.Property(e => e.Latitude).HasColumnName("latitude");
-            entity.Property(e => e.Longitude).HasColumnName("longitude");
-        });
-
         modelBuilder.Entity<LookupRegistration>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("lookup_registration_pkey");
